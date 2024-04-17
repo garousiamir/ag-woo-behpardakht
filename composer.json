@@ -1,0 +1,5 @@
+{
+    "require": {
+        "shetabit/multipay": "^1.45"
+    }
+}

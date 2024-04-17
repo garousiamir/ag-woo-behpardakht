@@ -1,0 +1,6 @@
+#add_payment_method #payment ul.payment_methods li img, .woocommerce-cart #payment ul.payment_methods li img, .woocommerce-checkout #payment ul.payment_methods li img {
+    width: 32px!important;
+    float: right!important;
+    margin-left: 8px!important;
+    margin-bottom: 5px!important;
+}

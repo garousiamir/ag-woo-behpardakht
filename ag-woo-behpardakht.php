@@ -15,6 +15,8 @@ require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';
 use Shetabit\Multipay\Invoice;
 use Shetabit\Multipay\Payment;
 use Shetabit\Multipay\Exceptions\InvalidPaymentException;
+use Shetabit\Multipay\Exceptions\PurchaseFailedException;
+
 
 /*
 * This action hook registers our PHP class as a WooCommerce payment gateway
@@ -212,6 +214,15 @@ function ag_behpardakht_gateway_class() {
 		{
 
 			global $woocommerce;
+			$payaneh = $this->payaneh; 
+			$username = $this->username;
+			$password = $this->password;
+			$options_currency = $this->currencyselect;
+			if($options_currency === 'option1'){
+				$options_currency = 'R';
+			}elseif($options_currency === 'option2'){
+				$options_currency = 'T';
+			}
 			$woocommerce->session->order_id_ag_behpardakht = $order_id;
 			$order = new WC_Order( $order_id );
 			$currency = $order->get_currency();
@@ -219,13 +230,34 @@ function ag_behpardakht_gateway_class() {
 			$Amount = intval($order->get_total());
 			$callBackUrl = add_query_arg( 'wc_order', $order_id , WC()->api_request_url('WC_AG_Behpardakht') );
 			$payment = $this->payment;
-	
-			echo $payment->via('local')->config(['callbackUrl' => $callBackUrl, 'title' => 'صفحه پرداخت تست', 'description' => 'این صفحه عملکرد درگاه را شبیه سازی میکند'])->purchase(
-				(new Invoice)->amount($Amount), 
-				function($driver, $transactionId) use ($order_id) {
-					update_post_meta($order_id , 'ag_behpardakht_transaction_id', $transactionId);
-				}
-			)->pay()->render();
+
+			try {
+
+				echo $payment->via('behpardakht')->config([
+						'terminalId' => $payaneh,
+						'username' => $username,
+						'password' => $password,
+						'callbackUrl' => $callBackUrl,
+						'currency' => $options_currency,
+					])->purchase(
+					(new Invoice)->amount($Amount), 
+					function($driver, $transactionId) use ($order_id) {
+						update_post_meta($order_id , 'ag_behpardakht_transaction_id', $transactionId);
+					}
+				)->pay()->render();
+
+			} catch (InvalidPaymentException $exception) {
+
+				wp_redirect(wc_get_checkout_url());
+				wc_add_notice( 'مشکلی در اتصال به بانک وجود داشت به دامنه یا IP سایت توجه کنید', 'error' );
+				$order->add_order_note($exception->getMessage(), 1);
+				
+			} catch (PurchaseFailedException $exception) {
+
+				wp_redirect(wc_get_checkout_url());
+				wc_add_notice( 'مشکلی در اتصال به بانک وجود داشت به دامنه یا IP سایت توجه کنید', 'error' );
+				$order->add_order_note($exception->getMessage(), 1);
+			}
 			
 		}
 
@@ -258,7 +290,9 @@ function ag_behpardakht_gateway_class() {
 							$order->add_order_note($Note, 1);
 						}
 					} catch (InvalidPaymentException $exception) {
-						echo $exception->getMessage();
+						wp_redirect(wc_get_checkout_url());
+     					wc_add_notice( 'مشکلی در پرداخت وجود داشت در صورت کسر وجه مبلغ ظرف نهایت 72 ساعت به حساب شما واریز خواهد شد. مجددا تلاش کنید', 'error' );
+						$order->add_order_note($exception->getMessage(), 1);
 					}
 					
 				}

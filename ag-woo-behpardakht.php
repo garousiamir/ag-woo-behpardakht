@@ -115,18 +115,6 @@ function ag_behpardakht_gateway_class() {
 						'description' => __('توضیحاتی که در طی عملیات پرداخت برای درگاه نمایش داده خواهد شد', 'woocommerce'),
 						'default' => __('پرداخت امن به وسیله کلیه کارت های عضو شتاب از طریق درگاه به پرداخت ملت', 'woocommerce')
 					),
-					'currencyselect' => array(
-						'title' => __('انتخاب واحد پول', 'woocommerce'),
-						'type' => 'select',
-						'description' => __('عملکرد پلاگین در این بخش بسیار مهم است. حتما به واحد پول دقت کنید', 'woocommerce'),
-						'default'     => 'option2', // Default option value
-						'desc_tip'    => true,
-						'options'     => array(
-							'option1' => __('ریال', 'woocommerce'),
-							'option2' => __('تومان', 'woocommerce'),
-						),
-
-					),
 					'account_config' => array(
 						'title' => __('تنظیمات حساب به پرداخت ملت', 'woocommerce'),
 						'type' => 'title',
@@ -214,33 +202,47 @@ function ag_behpardakht_gateway_class() {
 		{
 
 			global $woocommerce;
+
 			$payaneh = $this->payaneh; 
 			$username = $this->username;
 			$password = $this->password;
-			$options_currency = $this->currencyselect;
-			if($options_currency === 'option1'){
-				$options_currency = 'R';
-			}elseif($options_currency === 'option2'){
-				$options_currency = 'T';
-			}
 			$woocommerce->session->order_id_ag_behpardakht = $order_id;
 			$order = new WC_Order( $order_id );
 			$currency = $order->get_currency();
 			$currency = apply_filters( 'WC_AG_Behpardakht_Currency', $currency, $order_id );
 			$Amount = intval($order->get_total());
+			$Amount = apply_filters( 'woocommerce_order_amount_total_IRANIAN_gateways_before_check_currency', $Amount, $currency );
+			if ( strtolower($currency) == strtolower('IRT') || strtolower($currency) == strtolower('TOMAN')
+				|| strtolower($currency) == strtolower('Iran TOMAN') || strtolower($currency) == strtolower('Iranian TOMAN')
+				|| strtolower($currency) == strtolower('Iran-TOMAN') || strtolower($currency) == strtolower('Iranian-TOMAN')
+				|| strtolower($currency) == strtolower('Iran_TOMAN') || strtolower($currency) == strtolower('Iranian_TOMAN')
+				|| strtolower($currency) == strtolower('تومان') || strtolower($currency) == strtolower('تومان ایران')
+			)
+				$Amount = $Amount*10;
+			else if ( strtolower($currency) == strtolower('IRHT') )							
+				$Amount = $Amount*1000*10;
+			else if ( strtolower($currency) == strtolower('IRHR') )							
+				$Amount = $Amount*1000;
+			
+
 			$callBackUrl = add_query_arg( 'wc_order', $order_id , WC()->api_request_url('WC_AG_Behpardakht') );
 			$payment = $this->payment;
 
 			try {
 
 				echo $payment->via('behpardakht')->config([
-						'terminalId' => $payaneh,
-						'username' => $username,
-						'password' => $password,
-						'callbackUrl' => $callBackUrl,
-						'currency' => $options_currency,
+					'apiPurchaseUrl' => 'https://bpm.shaparak.ir/pgwchannel/services/pgw?wsdl',
+					'apiPaymentUrl' => 'https://bpm.shaparak.ir/pgwchannel/startpay.mellat',
+					'apiVerificationUrl' => 'https://bpm.shaparak.ir/pgwchannel/services/pgw?wsdl',
+					'terminalId' => $payaneh,
+					'username' => $username,
+					'password' => $password,
+					'callbackUrl' => $callBackUrl,
+					'description' => 'payment using behpardakht',
+					'currency' => 'R', //Can be R, T (Rial, Toman)
+					'cumulativeDynamicPayStatus' => false,
 					])->purchase(
-					(new Invoice)->amount($Amount), 
+					(new Invoice)->amount((int)$Amount), 
 					function($driver, $transactionId) use ($order_id) {
 						update_post_meta($order_id , 'ag_behpardakht_transaction_id', $transactionId);
 					}
@@ -249,14 +251,15 @@ function ag_behpardakht_gateway_class() {
 			} catch (InvalidPaymentException $exception) {
 
 				wp_redirect(wc_get_checkout_url());
-				wc_add_notice( 'مشکلی در اتصال به بانک وجود داشت به دامنه یا IP سایت توجه کنید', 'error' );
+				wc_add_notice( $exception->getMessage() , 'error' );
 				$order->add_order_note($exception->getMessage(), 1);
 				
 			} catch (PurchaseFailedException $exception) {
 
 				wp_redirect(wc_get_checkout_url());
-				wc_add_notice( 'مشکلی در اتصال به بانک وجود داشت به دامنه یا IP سایت توجه کنید', 'error' );
+				wc_add_notice( $exception->getMessage() , 'error' );
 				$order->add_order_note($exception->getMessage(), 1);
+
 			}
 			
 		}
@@ -276,24 +279,62 @@ function ag_behpardakht_gateway_class() {
 			if ($order_id) {
 				$order = new WC_Order($order_id);
 				if ($order->status !== 'completed') {
+					$currency = $order->get_currency();
 					$Amount = intval($order->get_total());
+					$Amount = apply_filters( 'woocommerce_order_amount_total_IRANIAN_gateways_before_check_currency', $Amount, $currency );
+					if ( strtolower($currency) == strtolower('IRT') || strtolower($currency) == strtolower('TOMAN')
+						|| strtolower($currency) == strtolower('Iran TOMAN') || strtolower($currency) == strtolower('Iranian TOMAN')
+						|| strtolower($currency) == strtolower('Iran-TOMAN') || strtolower($currency) == strtolower('Iranian-TOMAN')
+						|| strtolower($currency) == strtolower('Iran_TOMAN') || strtolower($currency) == strtolower('Iranian_TOMAN')
+						|| strtolower($currency) == strtolower('تومان') || strtolower($currency) == strtolower('تومان ایران')
+					)
+						$Amount = $Amount*10;
+					else if ( strtolower($currency) == strtolower('IRHT') )							
+						$Amount = $Amount*1000*10;
+					else if ( strtolower($currency) == strtolower('IRHR') )							
+						$Amount = $Amount*1000;
+
+					$payaneh = $this->payaneh; 
+					$username = $this->username;
+					$password = $this->password;
+					$callBackUrl = add_query_arg( 'wc_order', $order_id , WC()->api_request_url('WC_AG_Behpardakht') );
 					$transactionId = get_post_meta($order_id, 'ag_behpardakht_transaction_id', true);
 					$payment = $this->payment;
-
+					
 					try {
-						$receipt = $payment->amount($Amount)->transactionId($transactionId)->verify();
-						echo $receipt->getReferenceId();
+						$receipt = $payment->via('behpardakht')->config([
+							'apiPurchaseUrl' => 'https://bpm.shaparak.ir/pgwchannel/services/pgw?wsdl',
+							'apiPaymentUrl' => 'https://bpm.shaparak.ir/pgwchannel/startpay.mellat',
+							'apiVerificationUrl' => 'https://bpm.shaparak.ir/pgwchannel/services/pgw?wsdl',
+							'terminalId' => $payaneh,
+							'username' => $username,
+							'password' => $password,
+							'callbackUrl' => $callBackUrl,
+							'description' => 'payment using behpardakht',
+							'currency' => 'R', //Can be R, T (Rial, Toman)
+							'cumulativeDynamicPayStatus' => false,
+							])->amount((int)$Amount)->transactionId($transactionId)->verify();
 						wp_redirect(add_query_arg('wc_status', 'success', $this->get_return_url($order)));
-						$order->payment_complete($transactionId);
-						$Note = sprintf(__('پرداخت موفقیت آمیز بود .<br/> کد رهگیری : %s', 'woocommerce'), $transactionId);
+						$order->payment_complete($receipt->getReferenceId());
+						$Note = sprintf(__('پرداخت موفقیت آمیز بود .<br/> کد رهگیری : %s', 'woocommerce'), $receipt->getReferenceId());
 						if ($Note){
 							$order->add_order_note($Note, 1);
 						}
+
 					} catch (InvalidPaymentException $exception) {
+
+						wc_add_notice( $exception->getMessage() , 'error' );
 						wp_redirect(wc_get_checkout_url());
-     					wc_add_notice( 'مشکلی در پرداخت وجود داشت در صورت کسر وجه مبلغ ظرف نهایت 72 ساعت به حساب شما واریز خواهد شد. مجددا تلاش کنید', 'error' );
-						$order->add_order_note($exception->getMessage(), 1);
+						$order->add_order_note($exception->getMessage() .' '. $transactionId, 1);
+						
+					} catch (PurchaseFailedException $exception) {
+
+						wc_add_notice( $exception->getMessage() , 'error' );
+						wp_redirect(wc_get_checkout_url());
+						$order->add_order_note($exception->getMessage() .' '. $transactionId , 1);
+						
 					}
+
 					
 				}
 			}
@@ -301,4 +342,3 @@ function ag_behpardakht_gateway_class() {
 		
  	}
 }
-

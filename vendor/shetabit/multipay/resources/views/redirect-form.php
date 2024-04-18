@@ -60,26 +60,26 @@
             <div class="bounce2"></div>
             <div class="bounce3"></div>
         </div>
-        <form class="text-center mt-2" method="<?php echo htmlentities($method) ?>" action="<?php echo htmlentities($action) ?>">
-            <p>Forwarding to secure payment provider.</p>
+        <form id="ag_gatewayform" class="text-center mt-2" method="<?php echo htmlentities($method) ?>" action="<?php echo htmlentities($action) ?>">
+            <p>در حال اتصال به درگاه پرداخت</p>
             <p>
-                If you are not automatically redirected to the payment website with in
+                اگر تا ده ثانیه آینده به صورت خودکار منتقل نشدید روی دکمه زیر کلیک کنید 
                 <span id="countdown">10</span>
-                seconds...
+                ثانیه ...
             </p>
 
             <?php foreach ($inputs as $name => $value): ?>
                 <input type="hidden" name="<?php echo htmlentities($name) ?>" value="<?php echo htmlentities($value) ?>">
             <?php endforeach; ?>
 
-            <button type="submit">Click here</button>
+            <button type="submit">کلیک کنید</button>
         </form>
         <script>
             // Total seconds to wait
             var seconds = 10;
 
             function submitForm() {
-                document.forms[0].submit();
+                document.getElementById("ag_gatewayform").submit();
             }
 
             function countdown() {

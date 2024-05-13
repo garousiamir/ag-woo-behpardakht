@@ -11,6 +11,7 @@
 if ( ! defined( 'ABSPATH' ) ) { die; }  // Cannot access directly.
 
 require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';
+require_once plugin_dir_path(__FILE__) . 'inc/internationalization.php';
 
 use Shetabit\Multipay\Invoice;
 use Shetabit\Multipay\Payment;

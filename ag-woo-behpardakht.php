@@ -1,12 +1,20 @@
 <?php
 /*
-* Plugin Name: ag-woo-behpardakht
-* Plugin URI: https://agarousi.com
-* Description: درگاه پرداخت به پرداخت ملت برای ووکامرس (نسخه فول و کامل)
-* Tags: به پرداخت ملت , بانک ملت , بانک ملت برای ووکامرس , درگاه پرداخت بانک ملت برای افزونه ووکامرس , mellat , ‌behpardakht
-* Author: Amirhossein Garousi
-* Author URI: https://agarousi.com
-* Version: 1.0
+Plugin Name: AG Woo Behpardakht
+Description: درگاه پرداخت به پرداخت ملت برای ووکامرس (نسخه فول و کامل)
+Version: 1.0
+Author: Amirhossein Garousi
+Author URI: https://agarousi.com/
+Contributors: garousiamir
+Tags: به پرداخت ملت , بانک ملت , بانک ملت برای ووکامرس , mellat , ‌behpardakht
+Donate link: https://zarinp.al/garousiamir
+Requires at least: 6.0
+Tested up to: 6.5.2
+Requires PHP: 7.4
+Stable tag: 1.0
+Text Domain: ag-jalali-date
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
 if ( ! defined( 'ABSPATH' ) ) { die; }  // Cannot access directly.
 

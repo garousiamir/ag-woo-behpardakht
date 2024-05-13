@@ -1,6 +1,6 @@
-=== AG Jalali Date ===
+=== AG Woo Behpardakht ===
 Contributors: garousiamir
-Tags: شمسی, جلالی, فارسی, farsi, persian, jalali, shamsi, persiandate,wp-shamsi, wp shamsi,parsidate
+Tags: به پرداخت ملت , بانک ملت , بانک ملت برای ووکامرس , mellat , ‌behpardakht
 Donate link: https://zarinp.al/garousiamir
 Requires at least: 5.8
 Tested up to: 6.4.2
@@ -9,35 +9,51 @@ Stable tag: 1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-This plugin converts WordPress dates to Jalali using the Dcter package.
+Behpardakht Mellat Woocommerce Payment Gateway
 
 == Description ==
-The ‘AG WP Jalali’ plugin is a powerful tool that seamlessly integrates with your WordPress website to convert all Gregorian dates to Jalali dates. Leveraging the robust Dcter package, this plugin provides an efficient and accurate conversion of dates, enhancing the user experience for audiences familiar with the Jalali calendar.
+این پلاگین به شما امکان می دهد تا به راحتی درگاه پرداخت به پرداخت ملت را به فروشگاه ووکامرس خود اضافه کنید. با استفاده از این پلاگین می توانید تراکنش های آنلاین خود را به طور امن و مطمئن دریافت کنید.
 
-Once installed and activated, the plugin works behind the scenes, automatically converting the dates of posts, comments, and other date-related fields within your WordPress site to their Jalali counterparts. This is particularly useful for websites catering to audiences in Iran, Afghanistan, and other regions where the Jalali calendar is widely used.
+ویژگی ها:
 
-The plugin is easy to install, requires minimal configuration, and does not impact the performance of your website. It’s built with a focus on reliability and compatibility with other WordPress plugins and themes.
+    امن و مطمئن: این پلاگین از تمام استانداردهای امنیتی لازم برای محافظت از اطلاعات شما و مشتریانتان استفاده می کند.
+    آسان برای استفاده: نصب و راه اندازی این پلاگین بسیار آسان است و نیازی به دانش فنی خاصی ندارد.
+    قابل انعطاف: شما می توانید تنظیمات مختلفی را برای این پلاگین پیکربندی کنید تا به بهترین وجه با نیازهای شما مطابقت داشته باشد.
+    پشتیبانی عالی: ما در صورت بروز هرگونه مشکلی به شما پشتیبانی کامل ارائه می دهیم.
 
-In summary, the ‘AG WP Jalali’ plugin is an essential tool for any WordPress website aiming to provide a localized user experience for audiences using the Jalali calendar.
+مزایای استفاده از این پلاگین:
+
+    افزایش نرخ تبدیل: با ارائه درگاه پرداخت امن و مطمئن، می توانید نرخ تبدیل خود را افزایش دهید.
+    کاهش رها کردن سبد خرید: با ارائه یک فرآیند پرداخت آسان و سریع، می توانید رها کردن سبد خرید را کاهش دهید.
+    افزایش رضایت مشتری: با ارائه یک تجربه پرداخت امن و مطمئن، می توانید رضایت مشتریان خود را افزایش دهید.
+
+نحوه نصب:
+
+    پلاگین را از مخزن وردپرس دانلود کنید.
+    پلاگین را در پوشه افزونه های وردپرس خود آپلود کنید.
+    پلاگین را در وردپرس فعال کنید.
+    به تنظیمات ووکامرس بروید و به تب "پرداخت" بروید.
+    درگاه پرداخت به پرداخت ملت را انتخاب کنید و تنظیمات آن را پیکربندی کنید.
+
+نکات:
+
+    برای استفاده از این پلاگین، به یک حساب کاربری در به پرداخت ملت نیاز دارید.
+    می توانید برای اطلاعات بیشتر در مورد نحوه پیکربندی این پلاگین، به مستندات آن مراجعه کنید.
+    
 
 == Installation ==
 1. Log in to your WordPress Dashboard.
 2. Click Plugins > Add New.
-3. Type AG WP Jalali in the search box.
+3. Type AG Woo Behpardakht in the search box.
 4. Alternatively, you can click on Upload Plugin to upload the plugin .zip file.
 5. Click on Install Now.
 6. Once the installation has finished, click on Activate.
 
-== Frequently Asked Questions ==
-1. Does This Translate all WordPress dates?
-   - We now support all the places where standard `get_the_date()` and `the_date()` function have been used, but in the future, we will be adding more functionalities.
-2. What if I want to get support?
-   - You can easily open up an issue in the GitHub repo: [GitHub Repository](https://github.com/garousiamir/ag-wp-jalali)
 
 == Changelog ==
-Version 1.0 - Initial release on 1/18/2024
+Version 1.0 - Initial release on 5/13/2024
 
 
 == Assets and Libraries used in the plugin  ==
-https://github.com/hanifhefaz/dcter Library for converting dates to jalali
+https://github.com/shetabit/multipay Library for Gateway Integration
 

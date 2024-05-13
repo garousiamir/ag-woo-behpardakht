@@ -1,14 +1,16 @@
 # chillerlan/php-cache
 
-A psr/simple-cache implementation for PHP 8.1+.
+A psr/simple-cache implementation for PHP 7.4+.
 
 [![PHP Version Support][php-badge]][php]
 [![version][packagist-badge]][packagist]
 [![license][license-badge]][license]
+[![Travis][travis-badge]][travis]
 [![Coverage][coverage-badge]][coverage]
-[![Codacy][codacy-badge]][codacy]
+[![Scrunitizer][scrutinizer-badge]][scrutinizer]
 [![Packagist downloads][downloads-badge]][downloads]<br/>
 [![Continuous Integration][gh-action-badge]][gh-action]
+[![phpDocs][gh-docs-badge]][gh-docs]
 
 [php-badge]: https://img.shields.io/packagist/php-v/chillerlan/php-cache?logo=php&color=8892BF
 [php]: https://www.php.net/supported-versions.php
@@ -16,14 +18,18 @@ A psr/simple-cache implementation for PHP 8.1+.
 [packagist]: https://packagist.org/packages/chillerlan/php-cache
 [license-badge]: https://img.shields.io/github/license/chillerlan/php-cache.svg
 [license]: https://github.com/chillerlan/php-cache/blob/master/LICENSE
+[travis-badge]: https://img.shields.io/travis/com/chillerlan/php-cache.svg?logo=travis
+[travis]: https://travis-ci.com/chillerlan/php-cache
 [coverage-badge]: https://img.shields.io/codecov/c/github/chillerlan/php-cache.svg?logo=codecov
 [coverage]: https://codecov.io/github/chillerlan/php-cache
-[codacy-badge]: https://img.shields.io/codacy/grade/69b19ba81ae6492f973c4f05b92884aa/main?logo=codacy
-[codacy]: https://app.codacy.com/gh/chillerlan/php-cache/dashboard?branch=main
+[scrutinizer-badge]: https://img.shields.io/scrutinizer/g/chillerlan/php-cache.svg?logo=scrutinizer
+[scrutinizer]: https://scrutinizer-ci.com/g/chillerlan/php-cache
 [downloads-badge]: https://img.shields.io/packagist/dt/chillerlan/php-cache.svg?logo=packagist
 [downloads]: https://packagist.org/packages/chillerlan/php-cache/stats
 [gh-action-badge]: https://github.com/chillerlan/php-cache/workflows/Continuous%20Integration/badge.svg
 [gh-action]: https://github.com/chillerlan/php-cache/actions
+[gh-docs-badge]: https://github.com/chillerlan/php-cache/workflows/Docs/badge.svg
+[gh-docs]: https://github.com/chillerlan/php-cache/actions?query=workflow%3ADocs
 
 ## Features:
 - [PSR-16 simple-cache-implementation](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-16-simple-cache.md)
@@ -31,11 +37,11 @@ A psr/simple-cache implementation for PHP 8.1+.
   - non-persistent: Session, Memory
 
 ## Requirements
-- **PHP 8.1+**
+- **PHP 7.4+**
   - optionally one of the following extensions
-    - [Memcached](https://www.php.net/manual/en/book.memcached.php)
+    - [Memcached](http://php.net/manual/en/book.memcached.php)
     - [Redis](https://github.com/phpredis/phpredis/)
-    - [APCU](https://www.php.net/manual/en/book.apcu.php)
+    - [APCU](http://php.net/manual/en/book.apcu.php)
 
 ## Documentation
 ### Installation using [composer](https://getcomposer.org)
@@ -43,11 +49,11 @@ You can simply clone the repo and run `composer install` in the root directory.
 In case you want to include it elsewhere, just add the following to your *composer.json*:
 
 (note: replace `dev-main` with a [version constraint](https://getcomposer.org/doc/articles/versions.md#writing-version-constraints),
- e.g. `^4.1` - see [releases](https://github.com/chillerlan/php-cache/releases) for valid versions)
+ e.g. `^3.1` - see [releases](https://github.com/chillerlan/php-cache/releases) for valid versions)
 ```json
 {
 	"require": {
-		"php": "^8.1",
+		"php": "^7.4 || ^8.0",
 		"chillerlan/php-cache": "dev-main"
 	}
 }
@@ -76,10 +82,10 @@ $cache = new MemcachedCache($memcached);
 $cache = new APCUCache;
 
 // File
-$cache = new FileCache(new CacheOptions(['cacheFilestorage' => __DIR__.'/../.cache']));
+$cache = new FileCache(new CacheOptions(['filestorage' => __DIR__.'/../.cache']));
 
 // Session
-$cache = new SessionCache(new CacheOptions(['cacheSessionkey' => '_my_session_cache']));
+$cache = new SessionCache(new CacheOptions(['cachekey' => '_my_session_cache']));
 
 // Memory
 $cache = new MemoryCache;

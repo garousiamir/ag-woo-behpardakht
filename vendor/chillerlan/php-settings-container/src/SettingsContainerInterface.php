@@ -7,28 +7,30 @@
  * @copyright    2018 Smiley
  * @license      MIT
  */
-declare(strict_types=1);
 
 namespace chillerlan\Settings;
 
-use JsonSerializable, Serializable;
+use JsonSerializable;
 
 /**
  * a generic container with magic getter and setter
  */
-interface SettingsContainerInterface extends JsonSerializable, Serializable{
+interface SettingsContainerInterface extends JsonSerializable{
 
 	/**
 	 * Retrieve the value of $property
 	 *
 	 * @return mixed|null
 	 */
-	public function __get(string $property):mixed;
+	public function __get(string $property);
 
 	/**
 	 * Set $property to $value while avoiding private and non-existing properties
+	 *
+	 * @param string $property
+	 * @param mixed  $value
 	 */
-	public function __set(string $property, mixed $value):void;
+	public function __set(string $property, $value):void;
 
 	/**
 	 * Checks if $property is set (aka. not null), excluding private properties
@@ -41,38 +43,32 @@ interface SettingsContainerInterface extends JsonSerializable, Serializable{
 	public function __unset(string $property):void;
 
 	/**
-	 * @see \chillerlan\Settings\SettingsContainerInterface::toJSON()
+	 * @see SettingsContainerInterface::toJSON()
 	 */
 	public function __toString():string;
 
 	/**
 	 * Returns an array representation of the settings object
-	 *
-	 * The values will be run through the magic __get(), which may also call custom getters.
 	 */
 	public function toArray():array;
 
 	/**
 	 * Sets properties from a given iterable
-	 *
-	 * The values will be run through the magic __set(), which may also call custom setters.
 	 */
-	public function fromIterable(iterable $properties):static;
+	public function fromIterable(iterable $properties):SettingsContainerInterface;
 
 	/**
 	 * Returns a JSON representation of the settings object
 	 * @see \json_encode()
-	 * @see \chillerlan\Settings\SettingsContainerInterface::toArray()
 	 */
-	public function toJSON(int|null $jsonOptions = null):string;
+	public function toJSON(int $jsonOptions = null):string;
 
 	/**
 	 * Sets properties from a given JSON string
 	 *
 	 * @throws \Exception
 	 * @throws \JsonException
-	 * @see \chillerlan\Settings\SettingsContainerInterface::fromIterable()
 	 */
-	public function fromJSON(string $json):static;
+	public function fromJSON(string $json):SettingsContainerInterface;
 
 }

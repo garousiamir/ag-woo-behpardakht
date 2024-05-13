@@ -8,82 +8,73 @@
  * @license      MIT
  */
 
-declare(strict_types=1);
-
 namespace chillerlan\SimpleCache;
 
 use chillerlan\Settings\SettingsContainerInterface;
-use Psr\Log\{LoggerInterface, NullLogger};
-use DateInterval;
+use Psr\Log\LoggerInterface;
 
 use function time;
 
-/**
- * Implements a cache via PHP sessions
- */
 class SessionCache extends CacheDriverAbstract{
 
-	protected string $name;
+	protected string $key;
 
 	/**
 	 * SessionCache constructor.
 	 *
 	 * @throws \Psr\SimpleCache\CacheException
 	 */
-	public function __construct(
-		SettingsContainerInterface|CacheOptions $options = new CacheOptions,
-		LoggerInterface $logger = new NullLogger
-	){
+	public function __construct(SettingsContainerInterface $options = null, LoggerInterface $logger = null){
 		parent::__construct($options, $logger);
 
-		$this->name = $this->options->cacheSessionkey;
+		$this->key = $this->options->cacheSessionkey;
 
-		if(empty($this->name)){
+		if(!is_string($this->key) || empty($this->key)){
 			throw new CacheException('invalid session cache key');
 		}
 
-		$this->clear();
+
+		$_SESSION[$this->key] = [];
 	}
 
 	/** @inheritdoc */
-	public function get(string $key, mixed $default = null):mixed{
+	public function get($key, $default = null){
 		$key = $this->checkKey($key);
 
-		if(isset($_SESSION[$this->name][$key])){
+		if(isset($_SESSION[$this->key][$key])){
 
-			if($_SESSION[$this->name][$key]['ttl'] === null || $_SESSION[$this->name][$key]['ttl'] > time()){
-				return $_SESSION[$this->name][$key]['content'];
+			if($_SESSION[$this->key][$key]['ttl'] === null || $_SESSION[$this->key][$key]['ttl'] > time()){
+				return $_SESSION[$this->key][$key]['content'];
 			}
 
-			unset($_SESSION[$this->name][$key]);
+			unset($_SESSION[$this->key][$key]);
 		}
 
 		return $default;
 	}
 
 	/** @inheritdoc */
-	public function set(string $key, mixed $value, int|DateInterval|null $ttl = null):bool{
+	public function set($key, $value, $ttl = null):bool{
 		$ttl = $this->getTTL($ttl);
 
-		if($ttl !== null){
-			$ttl = (time() + $ttl);
-		}
-
-		$_SESSION[$this->name][$this->checkKey($key)] = ['ttl' => $ttl, 'content' => $value];
+		$_SESSION[$this->key][$this->checkKey($key)] = [
+			'ttl'     => $ttl ? time() + $ttl : null,
+			'content' => $value,
+		];
 
 		return true;
 	}
 
 	/** @inheritdoc */
-	public function delete(string $key):bool{
-		unset($_SESSION[$this->name][$this->checkKey($key)]);
+	public function delete($key):bool{
+		unset($_SESSION[$this->key][$this->checkKey($key)]);
 
 		return true;
 	}
 
 	/** @inheritdoc */
 	public function clear():bool{
-		$_SESSION[$this->name] = [];
+		$_SESSION[$this->key] = [];
 
 		return true;
 	}

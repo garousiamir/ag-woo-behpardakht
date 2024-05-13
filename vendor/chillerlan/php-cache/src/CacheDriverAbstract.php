@@ -10,42 +10,41 @@
  * @phan-file-suppress PhanTypeInvalidThrowsIsInterface
  */
 
-declare(strict_types=1);
-
 namespace chillerlan\SimpleCache;
 
 use chillerlan\Settings\SettingsContainerInterface;
 use Psr\Log\{LoggerAwareInterface, LoggerAwareTrait, LoggerInterface, NullLogger};
 use Psr\SimpleCache\CacheInterface;
-use DateInterval, DateTime, InvalidArgumentException, Traversable;
-use function is_array, is_int, iterator_to_array, time;
+use DateInterval, DateTime, Traversable;
+
+use function  is_array, is_int, is_string, iterator_to_array, time;
 
 abstract class CacheDriverAbstract implements CacheInterface, LoggerAwareInterface{
 	use LoggerAwareTrait;
 
-	protected SettingsContainerInterface|CacheOptions $options;
+	/**
+	 * @var \chillerlan\Settings\SettingsContainerInterface|\chillerlan\SimpleCache\CacheOptions
+	 */
+	protected SettingsContainerInterface $options;
 
 	/**
 	 * CacheDriverAbstract constructor.
 	 */
-	public function __construct(
-		SettingsContainerInterface|CacheOptions $options = new CacheOptions,
-		LoggerInterface $logger = new NullLogger
-	){
-		$this->options = $options;
-		$this->logger  = $logger;
+	public function __construct(SettingsContainerInterface $options = null, LoggerInterface $logger = null){
+		$this->options = $options ?? new CacheOptions;
+		$this->logger  = $logger ?? new NullLogger;
 	}
 
 	/** @inheritdoc */
-	public function has(string $key):bool{
+	public function has($key):bool{
 		return $this->get($key) !== null;
 	}
 
 	/** @inheritdoc */
-	public function getMultiple(iterable $keys, mixed $default = null):iterable{
+	public function getMultiple($keys, $default = null):array{
 		$data = [];
 
-		foreach($this->fromIterable($keys) as $key){
+		foreach($this->getData($keys) as $key){
 			$data[$key] = $this->get($key, $default);
 		}
 
@@ -53,10 +52,10 @@ abstract class CacheDriverAbstract implements CacheInterface, LoggerAwareInterfa
 	}
 
 	/** @inheritdoc */
-	public function setMultiple(iterable $values, int|DateInterval|null $ttl = null):bool{
+	public function setMultiple($values, $ttl = null):bool{
 		$return = [];
 
-		foreach($this->fromIterable($values) as $key => $value){
+		foreach($this->getData($values) as $key => $value){
 			$return[] = $this->set($key, $value, $ttl);
 		}
 
@@ -64,10 +63,10 @@ abstract class CacheDriverAbstract implements CacheInterface, LoggerAwareInterfa
 	}
 
 	/** @inheritdoc */
-	public function deleteMultiple(iterable $keys):bool{
+	public function deleteMultiple($keys):bool{
 		$return = [];
 
-		foreach($this->fromIterable($keys) as $key){
+		foreach($this->getData($keys) as $key){
 			$return[] = $this->delete($key);
 		}
 
@@ -75,59 +74,73 @@ abstract class CacheDriverAbstract implements CacheInterface, LoggerAwareInterfa
 	}
 
 	/**
-	 * @throws \InvalidArgumentException
+	 * @param string|mixed $key
+	 *
+	 * @return string
+	 * @throws \Psr\SimpleCache\InvalidArgumentException
 	 */
-	protected function checkKey(string $key):string{
+	protected function checkKey($key):string{
 
-		if(empty($key)){
-			throw new InvalidArgumentException('cache key is empty');
+		if(!is_string($key) || empty($key)){
+			throw new InvalidArgumentException('invalid cache key: "'.$key.'"');
 		}
 
 		return $key;
 	}
 
-	/**  */
-	protected function checkKeyArray(array $keys):array{
+	/**
+	 * @param array $keys
+	 *
+	 * @return void
+	 */
+	protected function checkKeyArray(array $keys):void{
 
 		foreach($keys as $key){
 			$this->checkKey($key);
 		}
 
-		return $keys;
 	}
 
 	/**
-	 * @throws \InvalidArgumentException
+	 * @param mixed $data
+	 *
+	 * @return array
+	 * @throws \Psr\SimpleCache\InvalidArgumentException
 	 */
-	protected function fromIterable(iterable $data):array{
+	protected function getData($data):array{
 
 		if(is_array($data)){
 			return $data;
 		}
-
-		if($data instanceof Traversable){
+		elseif($data instanceof Traversable){
 			return iterator_to_array($data); // @codeCoverageIgnore
 		}
 
 		throw new InvalidArgumentException('invalid data');
 	}
 
-	/**  */
-	protected function getTTL(DateInterval|int|null $ttl):?int{
+	/**
+	 * @param mixed $ttl
+	 *
+	 * @return int|null
+	 * @throws \Psr\SimpleCache\InvalidArgumentException
+	 */
+	protected function getTTL($ttl):?int{
 
 		if($ttl instanceof DateInterval){
-			return ((new DateTime)->add($ttl)->getTimeStamp() - time());
+			return (new DateTime)->add($ttl)->getTimeStamp() - time();
 		}
-
-		if((is_int($ttl) && $ttl > 0)){
+		else if((is_int($ttl) && $ttl > 0) || $ttl === null){
 			return $ttl;
 		}
 
-		return null;
+		throw new InvalidArgumentException('invalid ttl');
 	}
 
 	/**
-	 * @param bool[]|int[] $booleans
+	 * @param bool[] $booleans
+	 *
+	 * @return bool
 	 */
 	protected function checkReturn(array $booleans):bool{
 

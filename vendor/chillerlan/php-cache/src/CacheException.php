@@ -8,10 +8,6 @@
  * @license      MIT
  */
 
-declare(strict_types=1);
-
 namespace chillerlan\SimpleCache;
 
-class CacheException extends \Exception implements \Psr\SimpleCache\CacheException{
-
-}
+class CacheException extends \Exception implements \Psr\SimpleCache\CacheException{}

@@ -8,22 +8,16 @@
  * @license      MIT
  */
 
-declare(strict_types=1);
-
 namespace chillerlan\SimpleCache;
 
-use DateInterval;
 use function time;
 
-/**
- * Implements a cache in memory
- */
 class MemoryCache extends CacheDriverAbstract{
 
 	protected array $cache = [];
 
 	/** @inheritdoc */
-	public function get(string $key, mixed $default = null):mixed{
+	public function get($key, $default = null){
 		$key = $this->checkKey($key);
 
 		if(isset($this->cache[$key])){
@@ -39,20 +33,19 @@ class MemoryCache extends CacheDriverAbstract{
 	}
 
 	/** @inheritdoc */
-	public function set(string $key, mixed $value, int|DateInterval|null $ttl = null):bool{
+	public function set($key, $value, $ttl = null):bool{
 		$ttl = $this->getTTL($ttl);
 
-		if($ttl !== null){
-			$ttl = (time() + $ttl);
-		}
-
-		$this->cache[$this->checkKey($key)] = ['ttl' => $ttl, 'content' => $value];
+		$this->cache[$this->checkKey($key)] = [
+			'ttl'     => $ttl ? time() + $ttl : null,
+			'content' => $value,
+		];
 
 		return true;
 	}
 
 	/** @inheritdoc */
-	public function delete(string $key):bool{
+	public function delete($key):bool{
 		unset($this->cache[$this->checkKey($key)]);
 
 		return true;
